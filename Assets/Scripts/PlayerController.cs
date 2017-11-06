@@ -15,9 +15,15 @@ public class PlayerController : MonoBehaviour {
         rigidbody2D = GetComponent<Rigidbody2D>();
         rigidbody2D.velocity = new Vector2(0, 0);
 	}
-	
-	// Update is called once per frame
-	void Update () {
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.tag == "Pacdot")
+            Destroy(collision.gameObject);
+    }
+
+    // Update is called once per frame
+    void Update () {
         animator.SetBool("isEat", false);
 
         if (Input.GetKeyDown(KeyCode.S))

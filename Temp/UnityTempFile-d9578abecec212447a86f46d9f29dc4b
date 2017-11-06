@@ -101,6 +101,7 @@
 -define:ENABLE_VSTU
 Assets/Scripts/GameManager.cs
 Assets/Scripts/PlayerController.cs
+Assets/Scripts/TileBehaviour.cs
 -r:"C:\Program Files\Unity\Editor\Data\Mono\lib\mono\unity\System.Runtime.Serialization.dll"
 -r:"C:\Program Files\Unity\Editor\Data\Mono\lib\mono\unity\System.Xml.Linq.dll"
 -r:"C:\Program Files\Unity\Editor\Data\Mono\lib\mono\unity\UnityScript.dll"

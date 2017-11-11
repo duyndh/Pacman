@@ -21,7 +21,8 @@ GameObject:
   - component: {fileID: 4117439429132516}
   - component: {fileID: 212230167794786792}
   - component: {fileID: 61963798282519758}
-  - component: {fileID: 50772264372598888}
+  - component: {fileID: 50157072854418828}
+  - component: {fileID: 114328517694471082}
   m_Layer: 0
   m_Name: pacdot
   m_TagString: Pacdot
@@ -42,7 +43,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!50 &50772264372598888
+--- !u!50 &50157072854418828
 Rigidbody2D:
   serializedVersion: 4
   m_ObjectHideFlags: 1
@@ -87,6 +88,19 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.02, y: 0.02}
   m_EdgeRadius: 0
+--- !u!114 &114328517694471082
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1113094303213840}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4f8f921b33ee2c4d9b327677874fe87, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pacdotSpawner: {fileID: 1369931757911302, guid: 8818d00048384f94aaf9c1405979b556,
+    type: 2}
 --- !u!212 &212230167794786792
 SpriteRenderer:
   m_ObjectHideFlags: 1

@@ -40,33 +40,33 @@ public class PacdotBehaviour : MonoBehaviour {
             }
 
             pacdotSpawner = GameObject.FindGameObjectWithTag("PacdotSpawner");
-            GameObject[,] pacdots = pacdotSpawner.GetComponent<PacdotSpawner>().pacdots;
+            //GameObject[,] pacdots = pacdotSpawner.GetComponent<PacdotSpawner>().GetPacdots();
             
             int sumAdjacentPoint = 0;
             // UP
             if (rowPosition - 1 >= 0
-                && pacdots[rowPosition - 1, columnPosition].GetComponent<PacdotBehaviour>().GetAvailable() == true)
+                && pacdotSpawnerScript.GetPacdot(rowPosition - 1, columnPosition).GetComponent<PacdotBehaviour>().GetAvailable() == true)
             {
                 sumAdjacentPoint += 2;
             }
 
             // DOWN
             if (rowPosition + 1 < pacdotSpawnerScript.nRowPacdot
-                && pacdotSpawnerScript.pacdots[rowPosition + 1, columnPosition].GetComponent<PacdotBehaviour>().GetAvailable() == true)
+                && pacdotSpawnerScript.GetPacdot(rowPosition + 1, columnPosition).GetComponent<PacdotBehaviour>().GetAvailable() == true)
             {
                 sumAdjacentPoint += 8;
             }
 
             // LEFT
             if (columnPosition - 1 >= 0
-                && pacdotSpawnerScript.pacdots[rowPosition, columnPosition - 1].GetComponent<PacdotBehaviour>().GetAvailable() == true)
+                && pacdotSpawnerScript.GetPacdot(rowPosition, columnPosition - 1).GetComponent<PacdotBehaviour>().GetAvailable() == true)
             {
                 sumAdjacentPoint += 4;
             }
 
             // RIGHT
             if (columnPosition + 1 < pacdotSpawnerScript.nColumnPacdot
-                && pacdotSpawnerScript.pacdots[rowPosition, columnPosition + 1].GetComponent<PacdotBehaviour>().GetAvailable() == true)
+                && pacdotSpawnerScript.GetPacdot(rowPosition, columnPosition + 1).GetComponent<PacdotBehaviour>().GetAvailable() == true)
             {
                 sumAdjacentPoint += 1;
             }
@@ -90,6 +90,6 @@ public class PacdotBehaviour : MonoBehaviour {
 
     // Update is called once per frame
     void Update () {
-		
-	}
+
+    }
 }

@@ -8,7 +8,7 @@ public class PacdotSpawner : MonoBehaviour {
     public int nRowPacdot, nColumnPacdot;
     public float spacing;
 
-    public GameObject[,] pacdots;
+    private GameObject[,] pacdots;
     
     // Use this for initialization
     void Start () {
@@ -25,8 +25,18 @@ public class PacdotSpawner : MonoBehaviour {
         //Debug.Log("Done");
     }
 
+    public GameObject[,] GetPacdots()
+    {
+        return pacdots;
+    }
+
+    public GameObject GetPacdot(int row, int column)
+    {
+        return pacdots[row, column];
+    }
+
     // Update is called once per frame
     void Update () {
-		
+        //Debug.Log(pacdots[16, 12].GetComponent<PacdotBehaviour>().GetTurn());
 	}
 }

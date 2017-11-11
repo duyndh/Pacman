@@ -9,13 +9,14 @@ public class PlayerController : MonoBehaviour {
     public GameObject pacdotSpawner;
     public int initRowPosition;
     public int initColumnPosition;
-    
+    public GameObject gameController;
+
     private Rigidbody2D rigidbody2D;
-    private PacdotSpawner pacdotSpawnerScript;
     private Vector3 nextRotation;
     private Vector2 nextVelocity;
-    private GameObject[,] pacdots;
     private int turnKind;
+    private GameObject turn;
+    private bool isFirstStart;
 
     //      2    
     //  4       1
@@ -78,9 +79,9 @@ public class PlayerController : MonoBehaviour {
         rigidbody2D = GetComponent<Rigidbody2D>();
         rigidbody2D.velocity = Vector2.zero;
 
-        pacdotSpawnerScript = pacdotSpawner.GetComponent<PacdotSpawner>();
         nextRotation = Vector3.zero;
-        nextVelocity = speed * Vector2.right;
+        nextVelocity = Vector3.zero;
+        isFirstStart = true;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -88,12 +89,17 @@ public class PlayerController : MonoBehaviour {
         if (collision.gameObject.tag == "Pacdot")
         {
             if (collision.gameObject.GetComponent<Renderer>().enabled == true)
-            {
+            {  
                 collision.gameObject.GetComponent<Renderer>().enabled = false;
-                animator.SetBool("IsEat", true);
+                if (!isFirstStart)
+                {
+                    animator.SetBool("IsEat", true);
+                    gameController.GetComponent<GameController>().IncreaseScore();
+                }
             }
 
-            turnKind = collision.gameObject.GetComponent<PacdotBehaviour>().GetTurn();
+            turn = collision.gameObject;
+            turnKind = turn.GetComponent<PacdotBehaviour>().GetTurn();
             //Debug.Log(turnKind);
 
             if (System.Enum.IsDefined(typeof(Turn), turnKind))
@@ -117,7 +123,9 @@ public class PlayerController : MonoBehaviour {
 
     // Update is called once per frame
     void Update () {
-        
+        //if (pacdots != null)
+          //  Debug.Log(pacdots[initRowPosition, initColumnPosition]);
+
         if (animator.GetCurrentAnimatorStateInfo(0).IsName("Eat"))
         {
             animator.SetBool("IsEat", false);        
@@ -151,15 +159,16 @@ public class PlayerController : MonoBehaviour {
             nextVelocity = speed * Vector2.down;
             keyPressed = true;
         }
-        
-        if (keyPressed && rigidbody2D.velocity == Vector2.zero && checkTurn(turnKind ,nextRotation))
+
+        if (isFirstStart)
         {
-            gameObject.transform.rotation = Quaternion.Euler(nextRotation);
-            rigidbody2D.velocity = new Vector2(nextVelocity.x, nextVelocity.y);
+            turnKind = turn.GetComponent<PacdotBehaviour>().GetTurn();
+            isFirstStart = false;
         }
 
-        if (Mathf.Abs(Quaternion.Euler(nextRotation).eulerAngles.z - gameObject.transform.rotation.eulerAngles.z) == 180)
-        {
+        if (keyPressed && rigidbody2D.velocity == Vector2.zero && checkTurn(turnKind ,nextRotation)
+            || Mathf.Abs(Quaternion.Euler(nextRotation).eulerAngles.z - gameObject.transform.rotation.eulerAngles.z) == 180)
+        {         
             gameObject.transform.rotation = Quaternion.Euler(nextRotation);
             rigidbody2D.velocity = new Vector2(nextVelocity.x, nextVelocity.y);
         }

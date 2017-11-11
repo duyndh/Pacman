@@ -16,7 +16,6 @@ public class PlayerController : MonoBehaviour {
     private Vector2 nextVelocity;
     private int turnKind;
     private GameObject turn;
-    private bool isFirstStart;
 
     //      2    
     //  4       1
@@ -66,7 +65,6 @@ public class PlayerController : MonoBehaviour {
         {
             return (1 & (turnKind >> 3)) == 1;
         }
-        //Debug.Log(rotation);
         return true;
     }
 
@@ -81,7 +79,6 @@ public class PlayerController : MonoBehaviour {
 
         nextRotation = Vector3.zero;
         nextVelocity = Vector3.zero;
-        isFirstStart = true;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -91,7 +88,7 @@ public class PlayerController : MonoBehaviour {
             if (collision.gameObject.GetComponent<Renderer>().enabled == true)
             {  
                 collision.gameObject.GetComponent<Renderer>().enabled = false;
-                if (!isFirstStart)
+                if (gameObject.transform.position != collision.gameObject.transform.position)
                 {
                     animator.SetBool("IsEat", true);
                     gameController.GetComponent<GameController>().IncreaseScore();
@@ -100,13 +97,11 @@ public class PlayerController : MonoBehaviour {
 
             turn = collision.gameObject;
             turnKind = turn.GetComponent<PacdotBehaviour>().GetTurn();
-            //Debug.Log(turnKind);
-
+            
             if (System.Enum.IsDefined(typeof(Turn), turnKind))
             {
                 gameObject.transform.position = collision.gameObject.transform.position;
-                //Debug.Log(turnKind);
-
+                
                 if (checkTurn(turnKind, nextRotation))
                 {
                     gameObject.transform.rotation = Quaternion.Euler(nextRotation);
@@ -123,9 +118,7 @@ public class PlayerController : MonoBehaviour {
 
     // Update is called once per frame
     void Update () {
-        //if (pacdots != null)
-          //  Debug.Log(pacdots[initRowPosition, initColumnPosition]);
-
+        
         if (animator.GetCurrentAnimatorStateInfo(0).IsName("Eat"))
         {
             animator.SetBool("IsEat", false);        
@@ -160,12 +153,7 @@ public class PlayerController : MonoBehaviour {
             keyPressed = true;
         }
 
-        if (isFirstStart)
-        {
-            turnKind = turn.GetComponent<PacdotBehaviour>().GetTurn();
-            isFirstStart = false;
-        }
-
+        turnKind = turn.GetComponent<PacdotBehaviour>().GetTurn();       
         if (keyPressed && rigidbody2D.velocity == Vector2.zero && checkTurn(turnKind ,nextRotation)
             || Mathf.Abs(Quaternion.Euler(nextRotation).eulerAngles.z - gameObject.transform.rotation.eulerAngles.z) == 180)
         {         

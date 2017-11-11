@@ -22,7 +22,6 @@ public class PacdotSpawner : MonoBehaviour {
                 pacdots[i, j].GetComponent<PacdotBehaviour>().SetAvailable(true);
             }
         }
-        //Debug.Log("Done");
     }
 
     public GameObject[,] GetPacdots()
@@ -37,6 +36,6 @@ public class PacdotSpawner : MonoBehaviour {
 
     // Update is called once per frame
     void Update () {
-        //Debug.Log(pacdots[16, 12].GetComponent<PacdotBehaviour>().GetTurn());
+
 	}
 }

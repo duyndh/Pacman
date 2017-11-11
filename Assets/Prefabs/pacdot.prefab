@@ -38,7 +38,7 @@ Transform:
   m_GameObject: {fileID: 1113094303213840}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -3, y: 3.36, z: 0}
-  m_LocalScale: {x: 4, y: 4, z: 1}
+  m_LocalScale: {x: 3, y: 3, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -99,8 +99,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d4f8f921b33ee2c4d9b327677874fe87, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pacdotSpawner: {fileID: 1369931757911302, guid: 8818d00048384f94aaf9c1405979b556,
-    type: 2}
 --- !u!212 &212230167794786792
 SpriteRenderer:
   m_ObjectHideFlags: 1

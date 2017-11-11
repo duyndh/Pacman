@@ -11,13 +11,13 @@ public class GameController : MonoBehaviour {
     public void IncreaseScore()
     {
         score++;
-        scoreText.text = "SCORE " + score.ToString();
+        scoreText.text = score.ToString();
     }
 
 	// Use this for initialization
 	void Start () {
         score = 0;
-        scoreText.text = "SCORE " + score.ToString();
+        scoreText.text = score.ToString();
 	}
 	
 	// Update is called once per frame

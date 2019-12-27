@@ -1,164 +1,149 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System;
 using UnityEngine;
+using System.Collections;
 
-public class PlayerController : MonoBehaviour {
+public class PlayerController : MonoBehaviour
+{
 
-    public Animator animator;
-    public float speed;
-    public GameObject pacdotSpawner;
-    public int initRowPosition;
-    public int initColumnPosition;
-    public GameObject gameController;
+    public float speed = 0.4f;
+    Vector2 _dest = Vector2.zero;
+    Vector2 _dir = Vector2.zero;
+    Vector2 _nextDir = Vector2.zero;
 
-    private Rigidbody2D rigidbody2D;
-    private Vector3 nextRotation;
-    private Vector2 nextVelocity;
-    private int turnKind;
-    private GameObject turn;
-
-    //      2    
-    //  4       1
-    //      8
-
-    //  0000...1111
-    //  DLUR
-
-    public enum Turn
+    [Serializable]
+    public class PointSprites
     {
-        //LEFT_RIGHT = 5,
-        //UP_DOWN = 12,
-
-        UP_RIGHT = 3,
-        UP_LEFT = 6,
-        DOWN_LEFT = 12,
-        DOWN_RIGHT = 9,
-
-        UP_LEFT_RIGHT = 7,
-        DOWN_LEFT_RIGHT = 13,
-        UP_DOWN_LEFT = 14,
-        UP_DOWN_RIGHT = 11,
-
-        UP_DOWN_LEFT_RIGHT = 15,
+        public GameObject[] pointSprites;
     }
 
-    
-    bool checkTurn(int turnKind, Vector3 rotation)
-    {
-        // LEFT
-        if (rotation.z == 180)
-        {
-            return (1 & (turnKind >> 2)) == 1;
-        }
-        // RIGHT
-        else if (rotation.z == 0)
-        {
-            return (1 & (turnKind >> 0)) == 1;
-        }
-        // UP
-        else if (rotation.z == 90)
-        {
-            return (1 & (turnKind >> 1)) == 1;
-        }
-        // DOWN
-        else if (rotation.z == 270)
-        {
-            return (1 & (turnKind >> 3)) == 1;
-        }
-        return true;
-    }
+    public PointSprites points;
+
+    public static int killstreak = 0;
+
+    // script handles
+    private GameGUINavigation GUINav;
+    private GameManager GM;
+    private ScoreManager SM;
+
+    private bool _deadPlaying = false;
 
     // Use this for initialization
     void Start()
     {
-        gameObject.transform.position = pacdotSpawner.transform.position
-            + pacdotSpawner.GetComponent<PacdotSpawner>().spacing * new Vector3(initColumnPosition, -initRowPosition, 0);
-
-        rigidbody2D = GetComponent<Rigidbody2D>();
-        rigidbody2D.velocity = Vector2.zero;
-
-        nextRotation = Vector3.zero;
-        nextVelocity = Vector3.zero;
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.gameObject.tag == "Pacdot")
-        {
-            if (collision.gameObject.GetComponent<Renderer>().enabled == true)
-            {  
-                collision.gameObject.GetComponent<Renderer>().enabled = false;
-                if (gameObject.transform.position != collision.gameObject.transform.position)
-                {
-                    animator.SetBool("IsEat", true);
-                    gameController.GetComponent<GameController>().IncreaseScore();
-                }
-            }
-
-            turn = collision.gameObject;
-            turnKind = turn.GetComponent<PacdotBehaviour>().GetTurn();
-            
-            if (System.Enum.IsDefined(typeof(Turn), turnKind))
-            {
-                gameObject.transform.position = collision.gameObject.transform.position;
-                
-                if (checkTurn(turnKind, nextRotation))
-                {
-                    gameObject.transform.rotation = Quaternion.Euler(nextRotation);
-                    rigidbody2D.velocity = new Vector2(nextVelocity.x, nextVelocity.y);
-                }
-                else if (!checkTurn(turnKind, gameObject.transform.rotation.eulerAngles))
-                {
-                    nextVelocity = Vector2.zero;
-                    rigidbody2D.velocity = Vector2.zero;
-                }
-            }                
-        }
+        GM = GameObject.Find("Game Manager").GetComponent<GameManager>();
+        SM = GameObject.Find("Game Manager").GetComponent<ScoreManager>();
+        GUINav = GameObject.Find("UI Manager").GetComponent<GameGUINavigation>();
+        _dest = transform.position;
     }
 
     // Update is called once per frame
-    void Update () {
-        
-        if (animator.GetCurrentAnimatorStateInfo(0).IsName("Eat"))
+    void FixedUpdate()
+    {
+        switch (GameManager.gameState)
         {
-            animator.SetBool("IsEat", false);        
+            case GameManager.GameState.Game:
+                ReadInputAndMove();
+                Animate();
+                break;
+
+            case GameManager.GameState.Dead:
+                if (!_deadPlaying)
+                    StartCoroutine("PlayDeadAnimation");
+                break;
         }
 
-        bool keyPressed = false;
 
-        if (Input.GetKeyDown(KeyCode.LeftArrow))
-        {
-            nextRotation = new Vector3(0, 0, 180);
-            nextVelocity = speed * Vector2.left;
-            keyPressed = true;
-        }
+    }
 
-        else if (Input.GetKeyDown(KeyCode.RightArrow))
+    IEnumerator PlayDeadAnimation()
+    {
+        _deadPlaying = true;
+        GetComponent<Animator>().SetBool("Die", true);
+        yield return new WaitForSeconds(1);
+        GetComponent<Animator>().SetBool("Die", false);
+        _deadPlaying = false;
+
+        if (GameManager.lives <= 0)
         {
-            nextRotation = new Vector3(0, 0, 0);
-            nextVelocity = speed * Vector2.right;
-            keyPressed = true;
-        }
-        else if (Input.GetKeyDown(KeyCode.UpArrow))
-        {
-            nextRotation = new Vector3(0, 0, 90);
-            nextVelocity = speed * Vector2.up;
-            keyPressed = true;
+            Debug.Log("Treshold for High Score: " + SM.LowestHigh());
+            if (GameManager.score >= SM.LowestHigh())
+                GUINav.getScoresMenu();
+            else
+                GUINav.H_ShowGameOverScreen();
         }
 
-        else if (Input.GetKeyDown(KeyCode.DownArrow))
-        {
-            nextRotation = new Vector3(0, 0, 270);
-            nextVelocity = speed * Vector2.down;
-            keyPressed = true;
-        }
+        else
+            GM.ResetScene();
+    }
 
-        turnKind = turn.GetComponent<PacdotBehaviour>().GetTurn();       
-        if (keyPressed && rigidbody2D.velocity == Vector2.zero && checkTurn(turnKind ,nextRotation)
-            || Mathf.Abs(Quaternion.Euler(nextRotation).eulerAngles.z - gameObject.transform.rotation.eulerAngles.z) == 180)
-        {         
-            gameObject.transform.rotation = Quaternion.Euler(nextRotation);
-            rigidbody2D.velocity = new Vector2(nextVelocity.x, nextVelocity.y);
+    void Animate()
+    {
+        Vector2 dir = _dest - (Vector2)transform.position;
+        GetComponent<Animator>().SetFloat("DirX", dir.x);
+        GetComponent<Animator>().SetFloat("DirY", dir.y);
+    }
+
+    bool Valid(Vector2 direction)
+    {
+        // cast line from 'next to pacman' to pacman
+        // not from directly the center of next tile but just a little further from center of next tile
+        Vector2 pos = transform.position;
+        direction += new Vector2(direction.x * 0.45f, direction.y * 0.45f);
+        RaycastHit2D hit = Physics2D.Linecast(pos + direction, pos);
+        return hit.collider.name == "pacdot" || (hit.collider == GetComponent<Collider2D>());
+    }
+
+    public void ResetDestination()
+    {
+        _dest = new Vector2(15f, 11f);
+        GetComponent<Animator>().SetFloat("DirX", 1);
+        GetComponent<Animator>().SetFloat("DirY", 0);
+    }
+
+    void ReadInputAndMove()
+    {
+        // move closer to destination
+        Vector2 p = Vector2.MoveTowards(transform.position, _dest, speed);
+        GetComponent<Rigidbody2D>().MovePosition(p);
+
+        // get the next direction from keyboard
+        if (Input.GetAxis("Horizontal") > 0) _nextDir = Vector2.right;
+        if (Input.GetAxis("Horizontal") < 0) _nextDir = -Vector2.right;
+        if (Input.GetAxis("Vertical") > 0) _nextDir = Vector2.up;
+        if (Input.GetAxis("Vertical") < 0) _nextDir = -Vector2.up;
+
+        // if pacman is in the center of a tile
+        if (Vector2.Distance(_dest, transform.position) < 0.00001f)
+        {
+            if (Valid(_nextDir))
+            {
+                _dest = (Vector2)transform.position + _nextDir;
+                _dir = _nextDir;
+            }
+            else   // if next direction is not valid
+            {
+                if (Valid(_dir))  // and the prev. direction is valid
+                    _dest = (Vector2)transform.position + _dir;   // continue on that direction
+
+                // otherwise, do nothing
+            }
         }
+    }
+
+    public Vector2 getDir()
+    {
+        return _dir;
+    }
+
+    public void UpdateScore()
+    {
+        killstreak++;
+
+        // limit killstreak at 4
+        if (killstreak > 4) killstreak = 4;
+
+        Instantiate(points.pointSprites[killstreak - 1], transform.position, Quaternion.identity);
+        GameManager.score += (int)Mathf.Pow(2, killstreak) * 100;
+
     }
 }
